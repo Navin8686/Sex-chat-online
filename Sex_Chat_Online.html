@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="hi" class="dark h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sex Chat Online - Anonymous 1-on-1 & Random Group Chat</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#fdf2f8',
+                            100: '#fce7f3',
+                            500: '#ec4899',
+                            600: '#db2777',
+                            700: '#be185d',
+                            800: '#9d174d',
+                            900: '#831843',
+                            950: '#500724',
+                        },
+                        neon: {
+                            purple: '#a855f7',
+                            pink: '#f43f5e',
+                            cyan: '#06b6d4',
+                            amber: '#f59e0b'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome & Google Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .custom-scroll::-webkit-scrollbar { width: 5px; }
+        .custom-scroll::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.6); }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 9999px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #ec4899; }
+        .glow-pink { box-shadow: 0 0 20px -5px rgba(236, 72, 153, 0.5); }
+        .glow-purple { box-shadow: 0 0 20px -5px rgba(168, 85, 247, 0.5); }
+    </style>
+</head>
+<body class="h-full bg-slate-950 text-slate-100 flex flex-col overflow-hidden select-none">
+
+    <!-- 1. AGE VERIFICATION MODAL (18+) -->
+    <div id="ageModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md transition-all duration-300">
+        <div class="bg-slate-900 border border-pink-500/30 rounded-3xl p-6 sm:p-8 max-w-lg w-full text-center shadow-2xl glow-pink relative overflow-hidden">
+            <div class="absolute -top-12 -right-12 w-32 h-32 bg-pink-500/20 rounded-full blur-2xl"></div>
+            
+            <div class="w-20 h-20 bg-gradient-to-tr from-pink-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-5 shadow-lg text-3xl font-black border-2 border-pink-400/40">
+                18+
+            </div>
+            
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-white mb-2 tracking-tight">
+                Age Verification Required
+            </h2>
+            <p class="text-slate-300 text-sm sm:text-base leading-relaxed mb-6 font-medium">
+                Yeh website sirf <span class="text-pink-400 font-bold">18 saal ya usse adhik umar</span> ke adult users ke liye hai. Kya aapki umar 18+ hai?
+            </p>
+
+            <div class="space-y-3">
+                <button onclick="acceptAge()" class="w-full bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-bold py-3.5 px-6 rounded-2xl shadow-lg transition-all transform active:scale-95 flex items-center justify-center gap-2">
+                    <span>Haan, Main 18+ Hoon (Enter Site)</span>
+                    <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                </button>
+                <button onclick="rejectAge()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold py-3 px-6 rounded-2xl border border-slate-700 transition-all text-sm">
+                    Nahi, Meri Umar 18 se kam hai
+                </button>
+            </div>
+            
+            <p class="text-xs text-slate-500 mt-5">
+                🔒 Anonymous Encrypted Connection • 100% Private Session
+            </p>
+        </div>
+    </div>
+
+    <!-- 2. LOGIN / JOIN MODE SELECTOR MODAL -->
+    <div id="loginModal" class="fixed inset-0 z-40 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl relative">
+            <h3 class="text-xl font-bold text-center mb-1 text-white">Choose Login Mode</h3>
+            <p class="text-xs text-slate-400 text-center mb-6">Select how you want to join Sex Chat Online</p>
+            
+            <!-- Toggle Tabs -->
+            <div class="flex p-1 bg-slate-950 rounded-2xl mb-6 border border-slate-800">
+                <button id="tabGuestBtn" onclick="switchLoginTab('guest')" class="flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all bg-gradient-to-r from-pink-600 to-purple-600 text-white shadow-md">
+                    ⚡ Guest ID (Fast)
+                </button>
+                <button id="tabRegBtn" onclick="switchLoginTab('registered')" class="flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-400 hover:text-white transition-all">
+                    👑 Registered Member
+                </button>
+            </div>
+
+            <!-- Guest Form -->
+            <div id="guestFormSection" class="space-y-4">
+                <div class="bg-amber-500/10 border border-amber-500/20 p-3 rounded-2xl text-xs text-amber-300 flex items-start gap-2.5">
+                    <i class="fa-solid fa-lightbulb text-amber-400 text-base mt-0.5 shrink-0"></i>
+                    <span>💡 Guest Mode me aapko koi email/password ki zaroorat nahi hai. Ek random temporary ID assign hogi.</span>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-1">Guest Nickname</label>
+                    <div class="relative">
+                        <input type="text" id="guestNickname" value="Guest_User_789" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-pink-500 font-semibold pl-10">
+                        <i class="fa-solid fa-user-secret absolute left-3.5 top-3.5 text-slate-500 text-sm"></i>
+                    </div>
+                </div>
+                <button onclick="confirmLogin('Guest User', '😈')" class="w-full bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-bold py-3.5 rounded-xl shadow-lg transition-all text-sm">
+                    Continue as Guest ID
+                </button>
+            </div>
+
+            <!-- Registered Form -->
+            <div id="registeredFormSection" class="space-y-3.5 hidden">
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-1">Email Address</label>
+                    <input type="email" placeholder="user@example.com" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-1">Username / Nickname</label>
+                    <input type="text" placeholder="Choose VIP handle..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-1">Password</label>
+                    <input type="password" placeholder="••••••••" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500">
+                </div>
+                <button onclick="confirmLogin('Standard Member', '👑')" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold py-3 rounded-xl shadow-lg transition-all text-sm">
+                    Login / Register with Email
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. MAIN APPLICATION HEADER -->
+    <header class="h-16 bg-slate-900/90 border-b border-slate-800 px-3 sm:px-6 flex items-center justify-between shrink-0 z-20 backdrop-blur-md">
+        <div class="flex items-center gap-3">
+            <button onclick="toggleMobileSidebar()" class="lg:hidden text-slate-300 p-2 hover:bg-slate-800 rounded-xl">
+                <i class="fa-solid fa-bars text-lg"></i>
+            </button>
+            <div class="flex items-center gap-2.5">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-pink-600 to-purple-600 flex items-center justify-center text-white text-xl shadow-lg glow-pink">
+                    🔥
+                </div>
+                <div>
+                    <h1 class="text-base sm:text-lg font-extrabold bg-gradient-to-r from-pink-500 via-purple-400 to-indigo-400 bg-clip-text text-transparent leading-tight">
+                        Sex Chat Online
+                    </h1>
+                    <p class="hidden sm:block text-[11px] text-slate-400 font-medium">Anonymous 1-on-1 & Random Group Chat</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2 sm:gap-3">
+            <!-- Live Radio Control -->
+            <button id="radioBtn" onclick="toggleRadio()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-800 text-slate-300 text-xs font-semibold border border-slate-700/60 transition-all">
+                <i id="radioIcon" class="fa-solid fa-radio text-pink-500"></i>
+                <span class="hidden md:inline">Live Radio</span>
+                <span id="radioStatus" class="w-2 h-2 rounded-full bg-slate-500"></span>
+            </button>
+
+            <!-- Mode Switch Badge -->
+            <button onclick="openLoginModal()" class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700 text-xs font-bold text-slate-200 hover:border-pink-500/50 transition-all">
+                <span id="userBadgeIcon" class="text-sm">😈</span>
+                <span id="userModeText" class="hidden sm:inline">Guest Mode</span>
+                <span class="text-[10px] text-pink-400 underline ml-1">Switch ID</span>
+            </button>
+
+            <!-- Admin Access Trigger -->
+            <button onclick="toggleAdminModal()" class="p-2 rounded-xl bg-purple-950/60 text-purple-300 border border-purple-800/50 hover:bg-purple-900/60 transition-all text-xs font-semibold" title="Admin Panel">
+                <i class="fa-solid fa-user-shield text-purple-400"></i>
+            </button>
+
+            <!-- Dark / Light toggle mockup -->
+            <button onclick="toggleTheme()" class="p-2.5 rounded-xl bg-slate-800 text-slate-300 hover:text-white transition-all text-xs">
+                <i id="themeIcon" class="fa-solid fa-moon"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN INTERFACE BODY -->
+    <div class="flex-1 flex overflow-hidden relative">
+
+        <!-- MOBILE BACKDROP -->
+        <div id="mobileBackdrop" onclick="toggleMobileSidebar()" class="fixed inset-0 bg-slate-950/70 z-20 hidden lg:hidden backdrop-blur-sm"></div>
+
+        <!-- 4. SIDEBAR NAVIGATION & LOUNGES -->
+        <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 w-72 sm:w-80 bg-slate-900 border-r border-slate-800 flex flex-col z-30 transition-transform duration-300 transform -translate-x-full lg:translate-x-0">
+            
+            <!-- Chat Mode Tabs -->
+            <div class="p-3 border-b border-slate-800">
+                <div class="grid grid-cols-2 gap-1.5 p-1 bg-slate-950 rounded-xl border border-slate-800/80">
+                    <button id="modeGroupBtn" onclick="switchMainMode('group')" class="py-2 rounded-lg text-xs font-bold bg-pink-600 text-white shadow">
+                        Public Group Rooms
+                    </button>
+                    <button id="modePrivateBtn" onclick="switchMainMode('private')" class="py-2 rounded-lg text-xs font-bold text-slate-400 hover:text-white">
+                        LIVE 1-on-1 Match
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto custom-scroll p-3 space-y-5">
+                <!-- Public Lounges Category -->
+                <div>
+                    <div class="flex items-center justify-between px-2 mb-2">
+                        <span class="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">Public Lounges</span>
+                        <span class="text-[10px] bg-pink-950 text-pink-300 px-2 py-0.5 rounded-full border border-pink-800">Hot Rooms</span>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <button onclick="switchRoom('🔥 Global Lounge', 142, 'Random multi-user party room')" class="room-card w-full p-3 rounded-2xl bg-gradient-to-r from-pink-950/40 to-slate-900 border border-pink-500/30 text-left transition-all hover:border-pink-500 flex items-center justify-between group">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="font-bold text-sm text-white group-hover:text-pink-400">🔥 Global Lounge</span>
+                                </div>
+                                <p class="text-[11px] text-slate-400 mt-0.5">Random multi-user main party room</p>
+                            </div>
+                            <span class="text-xs bg-pink-600/30 text-pink-300 border border-pink-500/40 px-2.5 py-1 rounded-full font-bold">142 Live</span>
+                        </button>
+
+                        <button onclick="switchRoom('📸 Photo Swap Party', 89, 'Share pics & spoiler snaps')" class="room-card w-full p-3 rounded-2xl bg-slate-950/60 border border-slate-800/80 text-left transition-all hover:border-slate-700 flex items-center justify-between group">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="font-bold text-sm text-slate-200 group-hover:text-purple-400">📸 Photo Swap Party</span>
+                                </div>
+                                <p class="text-[11px] text-slate-400 mt-0.5">Share pics & spoiler snaps</p>
+                            </div>
+                            <span class="text-xs bg-slate-800 text-slate-400 px-2.5 py-1 rounded-full font-bold">89 Live</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Active Lounge Members Section -->
+                <div>
+                    <div class="flex items-center justify-between px-2 mb-2">
+                        <span class="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">Active Lounge Members</span>
+                        <span class="text-[10px] text-emerald-400 flex items-center gap-1 font-semibold">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> 142 Users Online
+                        </span>
+                    </div>
+
+                    <div class="space-y-2">
+                        <!-- User 1 -->
+                        <div class="p-2.5 rounded-xl bg-slate-950/40 border border-slate-800/50 flex items-center justify-between">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-9 h-9 rounded-full bg-pink-900/50 border border-pink-500/40 flex items-center justify-center text-base">
+                                    👩🏻
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-1">
+                                        <span class="text-xs font-bold text-slate-200">Neha_Love</span>
+                                        <span class="text-xs">👑</span>
+                                    </div>
+                                    <span class="text-[10px] text-slate-400">Chatting in Global Lounge</span>
+                                </div>
+                            </div>
+                            <button onclick="startPrivateDirect('Neha_Love')" class="text-[11px] bg-pink-600/20 hover:bg-pink-600 text-pink-300 hover:text-white px-2.5 py-1 rounded-lg border border-pink-500/30 transition-all">PM</button>
+                        </div>
+
+                        <!-- User 2 -->
+                        <div class="p-2.5 rounded-xl bg-slate-950/40 border border-slate-800/50 flex items-center justify-between">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-9 h-9 rounded-full bg-cyan-900/50 border border-cyan-500/40 flex items-center justify-center text-base">
+                                    👦🏻
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-1">
+                                        <span class="text-xs font-bold text-slate-200">Rahul_Vip</span>
+                                        <span class="text-xs">💎</span>
+                                    </div>
+                                    <span class="text-[10px] text-slate-400">Online & active</span>
+                                </div>
+                            </div>
+                            <button onclick="startPrivateDirect('Rahul_Vip')" class="text-[11px] bg-purple-600/20 hover:bg-purple-600 text-purple-300 hover:text-white px-2.5 py-1 rounded-lg border border-purple-500/30 transition-all">PM</button>
+                        </div>
+
+                        <!-- User 3 -->
+                        <div class="p-2.5 rounded-xl bg-slate-950/40 border border-slate-800/50 flex items-center justify-between">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-9 h-9 rounded-full bg-purple-900/50 border border-purple-500/40 flex items-center justify-center text-base">
+                                    👩🏼
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-1">
+                                        <span class="text-xs font-bold text-slate-200">Priya_Angel</span>
+                                    </div>
+                                    <span class="text-[10px] text-slate-400">Sharing pics in Group</span>
+                                </div>
+                            </div>
+                            <button onclick="startPrivateDirect('Priya_Angel')" class="text-[11px] bg-pink-600/20 hover:bg-pink-600 text-pink-300 hover:text-white px-2.5 py-1 rounded-lg border border-pink-500/30 transition-all">PM</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-3 border-t border-slate-800 bg-slate-950 text-center">
+                <button onclick="toggleAdminModal()" class="w-full py-2 bg-gradient-to-r from-purple-900/40 to-slate-800 hover:from-purple-800/50 border border-purple-700/40 rounded-xl text-xs font-bold text-purple-300 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-sliders text-purple-400"></i> Admin Access Management
+                </button>
+            </div>
+        </aside>
+
+        <!-- 5. LIVE CHAT INTERFACE CONTAINER -->
+        <main class="flex-1 flex flex-col bg-slate-950 overflow-hidden">
+            
+            <!-- Room Top Bar -->
+            <div class="h-14 bg-slate-900/70 border-b border-slate-800 px-4 flex items-center justify-between shrink-0">
+                <div>
+                    <h2 id="activeRoomTitle" class="text-sm sm:text-base font-extrabold text-white flex items-center gap-2">
+                        🔥 Global Lounge <span class="text-xs font-normal text-slate-400">(142 Users Online)</span>
+                    </h2>
+                </div>
+                <div class="flex items-center gap-2">
+                    <!-- Call controls (visible in Private Chat mode) -->
+                    <div id="privateCallControls" class="flex items-center gap-1.5 hidden">
+                        <button onclick="startCall('audio')" class="p-2.5 rounded-xl bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/40 transition-all text-xs flex items-center gap-1.5 font-semibold" title="Start Audio Call">
+                            <i class="fa-solid fa-phone"></i>
+                            <span class="hidden sm:inline">Audio</span>
+                        </button>
+                        <button onclick="startCall('video')" class="p-2.5 rounded-xl bg-purple-600/20 hover:bg-purple-600 text-purple-300 hover:text-white border border-purple-500/40 transition-all text-xs flex items-center gap-1.5 font-semibold" title="Start Video Call">
+                            <i class="fa-solid fa-video"></i>
+                            <span class="hidden sm:inline">Video</span>
+                        </button>
+                    </div>
+
+                    <button onclick="switchMainMode('private')" class="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white text-xs font-bold px-3 py-2 rounded-xl shadow transition-all flex items-center gap-1.5">
+                        <i class="fa-solid fa-shuffle"></i>
+                        <span>Switch to 1-on-1 Private</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Messages Feed -->
+            <div id="chatFeed" class="flex-1 overflow-y-auto p-4 space-y-4 custom-scroll">
+                
+                <!-- System Connection Box -->
+                <div id="systemBox" class="flex justify-center my-2">
+                    <div class="bg-gradient-to-r from-purple-950/80 to-slate-900 border border-purple-500/30 text-purple-200 px-4 py-2.5 rounded-2xl text-xs text-center max-w-lg shadow-lg flex items-center gap-2">
+                        <span class="text-base">🌐</span>
+                        <span>Connected to <strong>Global Multi-User Party Room</strong>. Send message to talk with all online strangers!</span>
+                    </div>
+                </div>
+
+                <!-- Simulated Message 1 -->
+                <div class="flex items-start gap-3">
+                    <div class="w-9 h-9 rounded-full bg-pink-950 border border-pink-500/40 flex items-center justify-center text-lg shrink-0">
+                        👩🏻
+                    </div>
+                    <div class="max-w-[85%] sm:max-w-md">
+                        <div class="flex items-baseline gap-2 mb-1">
+                            <span class="text-xs font-bold text-pink-400 flex items-center gap-1">Neha_Love 👑</span>
+                            <span class="text-[10px] text-slate-500">10:45 AM</span>
+                        </div>
+                        <div class="bg-slate-900 text-slate-200 p-3 rounded-2xl rounded-tl-none border border-slate-800 text-sm">
+                            Hey guests! Any fun guys online right now? DM me 💋
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Simulated Message 2 -->
+                <div class="flex items-start gap-3">
+                    <div class="w-9 h-9 rounded-full bg-cyan-950 border border-cyan-500/40 flex items-center justify-center text-lg shrink-0">
+                        👦🏻
+                    </div>
+                    <div class="max-w-[85%] sm:max-w-md">
+                        <div class="flex items-baseline gap-2 mb-1">
+                            <span class="text-xs font-bold text-cyan-400 flex items-center gap-1">Rahul_Vip 💎</span>
+                            <span class="text-[10px] text-slate-500">10:46 AM</span>
+                        </div>
+                        <div class="bg-slate-900 text-slate-200 p-3 rounded-2xl rounded-tl-none border border-slate-800 text-sm">
+                            Welcome to the lounge! Remember to keep it respectful everyone 🔥
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Telegram & GIF Sticker Insertion Bar -->
+            <div class="bg-slate-900/90 border-t border-slate-800/80 px-3 py-2 flex items-center gap-2 overflow-x-auto custom-scroll shrink-0">
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 whitespace-nowrap">Stickers:</span>
+                <div class="flex items-center gap-1.5">
+                    <button onclick="insertSticker('🔥')" class="hover:scale-125 transition-transform p-1 text-lg">🔥</button>
+                    <button onclick="insertSticker('😈')" class="hover:scale-125 transition-transform p-1 text-lg">😈</button>
+                    <button onclick="insertSticker('💋')" class="hover:scale-125 transition-transform p-1 text-lg">💋</button>
+                    <button onclick="insertSticker('❤️')" class="hover:scale-125 transition-transform p-1 text-lg">❤️</button>
+                    <button onclick="insertSticker('👀')" class="hover:scale-125 transition-transform p-1 text-lg">👀</button>
+                    <button onclick="insertSticker('💣')" class="hover:scale-125 transition-transform p-1 text-lg">💣</button>
+                    <button onclick="insertSticker('💦')" class="hover:scale-125 transition-transform p-1 text-lg">💦</button>
+                    <button onclick="insertSticker('⚡')" class="hover:scale-125 transition-transform p-1 text-lg">⚡</button>
+                </div>
+            </div>
+
+            <!-- Message Input Area -->
+            <div class="p-3 bg-slate-900 border-t border-slate-800 shrink-0">
+                <form onsubmit="handleSend(event)" class="flex items-center gap-2">
+                    <button type="button" onclick="triggerPhotoUpload()" class="p-3 text-slate-400 hover:text-pink-400 bg-slate-950 rounded-xl border border-slate-800 transition-colors">
+                        <i class="fa-solid fa-image text-base"></i>
+                    </button>
+                    <input type="text" id="chatInput" placeholder="Send anonymous message to room..." autocomplete="off" class="flex-1 bg-slate-950 border border-slate-800 text-slate-100 placeholder-slate-500 text-sm rounded-xl px-4 py-3 focus:outline-none focus:border-pink-500 transition-all font-medium">
+                    <button type="submit" class="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white px-5 py-3 rounded-xl font-bold text-sm shadow-lg shadow-pink-600/20 active:scale-95 transition-all">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <!-- 6. ADMIN ACCESS MANAGEMENT MODAL -->
+    <div id="adminModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md hidden">
+        <div class="bg-slate-900 border border-purple-500/40 rounded-3xl p-6 max-w-sm w-full shadow-2xl relative glow-purple">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-extrabold text-base text-white flex items-center gap-2">
+                    <i class="fa-solid fa-shield-cat text-purple-400"></i> Admin Access Management
+                </h3>
+                <button onclick="toggleAdminModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <p class="text-xs text-slate-300 mb-4">Grant custom VIP or Elite status to users</p>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">Select Status</label>
+                    <select id="adminStatusSelect" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500 font-medium">
+                        <option value="Free Member">Free Member</option>
+                        <option value="👑 VIP Member">👑 VIP Member</option>
+                        <option value="💎 Elite Member">💎 Elite Member</option>
+                    </select>
+                </div>
+
+    <!-- 7. PRIVATE CALL SIMULATION OVERLAY -->
+    <div id="callOverlay" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-sm w-full text-center shadow-2xl relative flex flex-col items-center">
+            <div class="w-24 h-24 rounded-full bg-gradient-to-tr from-pink-600 to-purple-600 border-4 border-slate-800 flex items-center justify-center text-4xl mb-4 relative">
+                <span id="callUserAvatar">👩🏻</span>
+                <span class="absolute bottom-0 right-0 w-4 h-4 rounded-full bg-emerald-500 border-2 border-slate-900"></span>
+            </div>
+
+            <h3 id="callUserName" class="text-lg font-bold text-white mb-0.5">Neha_Love</h3>
+            <p id="callStatusText" class="text-xs text-pink-400 font-semibold mb-6 animate-pulse">Ringing...</p>
+
+            <div class="flex items-center justify-center gap-4">
+                <button onclick="toggleCallMute()" id="callMuteBtn" class="w-12 h-12 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-base transition-all">
+                    <i class="fa-solid fa-microphone-slash"></i>
+                </button>
+                <button onclick="endCall()" class="w-14 h-14 rounded-full bg-rose-600 hover:bg-rose-500 text-white flex items-center justify-center text-xl shadow-lg transition-all transform active:scale-90">
+                    <i class="fa-solid fa-phone-slash"></i>
+                </button>
+                <button id="callVideoToggleBtn" onclick="toggleCallVideo()" class="w-12 h-12 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-base transition-all">
+                    <i class="fa-solid fa-video"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // State variables
+        let currentUser = "Guest_User_789";
+        let userRoleBadge = "😈";
+        let isRadioPlaying = false;
+        let currentRoom = "🔥 Global Lounge";
+        let activeCallTimer = null;
+        let isMuted = false;
+        let isVideoOff = false;
+
+        // Age Verification
+        function acceptAge() {
+            document.getElementById('ageModal').classList.add('hidden');
+        }
+
+        function rejectAge() {
+            alert("Aapki umar 18 se kam hai. Content view karne ki anumati nahi hai.");
+            window.location.href = "https://www.google.com";
+        }
+
+        // Login Modal Tab Switcher
+        function switchLoginTab(tab) {
+            const guestBtn = document.getElementById('tabGuestBtn');
+            const regBtn = document.getElementById('tabRegBtn');
+            const guestForm = document.getElementById('guestFormSection');
+            const regForm = document.getElementById('registeredFormSection');
+
+            if (tab === 'guest') {
+                guestBtn.className = "flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all bg-gradient-to-r from-pink-600 to-purple-600 text-white shadow-md";
+                regBtn.className = "flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-400 hover:text-white transition-all";
+                guestForm.classList.remove('hidden');
+                regForm.classList.add('hidden');
+            } else {
+                regBtn.className = "flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md";
+                guestBtn.className = "flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-400 hover:text-white transition-all";
+                regForm.classList.remove('hidden');
+                guestForm.classList.add('hidden');
+            }
+        }
+
+        function openLoginModal() {
+            document.getElementById('loginModal').classList.remove('hidden');
+        }
+
+        function confirmLogin(modeName, badge) {
+            const guestInput = document.getElementById('guestNickname').value;
+            if (guestInput.trim()) currentUser = guestInput;
+            userRoleBadge = badge;
+
+            document.getElementById('userModeText').innerText = modeName;
+            document.getElementById('userBadgeIcon').innerText = badge;
+            document.getElementById('loginModal').classList.add('hidden');
+
+            appendSystemMessage(`Successfully switched to ${modeName} as ${currentUser}`);
+        }
+
+        // Navigation & Room Toggle
+        function toggleMobileSidebar() {
+            document.getElementById('sidebar').classList.toggle('-translate-x-full');
+            document.getElementById('mobileBackdrop').classList.toggle('hidden');
+        }
+
+        function switchMainMode(mode) {
+            const groupBtn = document.getElementById('modeGroupBtn');
+            const privateBtn = document.getElementById('modePrivateBtn');
+            const callControls = document.getElementById('privateCallControls');
+
+            if (mode === 'group') {
+                groupBtn.className = "py-2 rounded-lg text-xs font-bold bg-pink-600 text-white shadow";
+                privateBtn.className = "py-2 rounded-lg text-xs font-bold text-slate-400 hover:text-white";
+                callControls.classList.add('hidden');
+                switchRoom('🔥 Global Lounge', 142, 'Random multi-user main party room');
+            } else {
+                privateBtn.className = "py-2 rounded-lg text-xs font-bold bg-purple-600 text-white shadow";
+                groupBtn.className = "py-2 rounded-lg text-xs font-bold text-slate-400 hover:text-white";
+                callControls.classList.remove('hidden');
+                switchRoom('⚡ 1-on-1 Private Match', 1, 'Matching with a random stranger...');
+            }
+        }
+
+        function switchRoom(roomName, count, subtext) {
+            currentRoom = roomName;
+            document.getElementById('activeRoomTitle').innerHTML = `${roomName} <span class="text-xs font-normal text-slate-400">(${count} Users Online)</span>`;
+            document.getElementById('systemBox').innerHTML = `
+                <div class="bg-gradient-to-r from-purple-950/80 to-slate-900 border border-purple-500/30 text-purple-200 px-4 py-2.5 rounded-2xl text-xs text-center max-w-lg shadow-lg flex items-center gap-2">
+                    <span class="text-base">🌐</span>
+                    <span>Connected to <strong>${roomName}</strong>. ${subtext}</span>
+                </div>
+            `;
+            if (window.innerWidth < 1024) toggleMobileSidebar();
+        }
+
+        function startPrivateDirect(userName) {
+            switchMainMode('private');
+            document.getElementById('callUserName').innerText = userName;
+            appendSystemMessage(`Initiating encrypted private session with ${userName}...`);
+        }
+
+        // Call Simulation Features
+        function startCall(type) {
+            const overlay = document.getElementById('callOverlay');
+            const statusText = document.getElementById('callStatusText');
+            overlay.classList.remove('hidden');
+            statusText.innerText = `Connecting ${type.toUpperCase()} call...`;
+            statusText.className = "text-xs text-pink-400 font-semibold mb-6 animate-pulse";
+
+            let seconds = 0;
+            if (activeCallTimer) clearInterval(activeCallTimer);
+
+            setTimeout(() => {
+                statusText.className = "text-xs text-emerald-400 font-semibold mb-6";
+                activeCallTimer = setInterval(() => {
+                    seconds++;
+                    const mins = String(Math.floor(seconds / 60)).padStart(2, '0');
+                    const secs = String(seconds % 60).padStart(2, '0');
+                    statusText.innerText = `Connected (${mins}:${secs})`;
+                }, 1000);
+            }, 2500);
+        }
+
+        function endCall() {
+            if (activeCallTimer) clearInterval(activeCallTimer);
+            document.getElementById('callOverlay').classList.add('hidden');
+            appendSystemMessage("Call ended");
+        }
+
+        function toggleCallMute() {
+            isMuted = !isMuted;
+            const btn = document.getElementById('callMuteBtn');
+            btn.className = isMuted 
+                ? "w-12 h-12 rounded-full bg-rose-600/30 text-rose-400 border border-rose-500/50 flex items-center justify-center text-base transition-all" 
+                : "w-12 h-12 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-base transition-all";
+        }
+
+        function toggleCallVideo() {
+            isVideoOff = !isVideoOff;
+            const btn = document.getElementById('callVideoToggleBtn');
+            btn.className = isVideoOff 
+                ? "w-12 h-12 rounded-full bg-rose-600/30 text-rose-400 border border-rose-500/50 flex items-center justify-center text-base transition-all" 
+                : "w-12 h-12 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-base transition-all";
+        }
+
+        // Live Radio Toggle Mock
+        function toggleRadio() {
+            isRadioPlaying = !isRadioPlaying;
+            const status = document.getElementById('radioStatus');
+            const icon = document.getElementById('radioIcon');
+
+            if (isRadioPlaying) {
+                status.className = "w-2 h-2 rounded-full bg-emerald-400 animate-ping";
+                icon.className = "fa-solid fa-volume-high text-pink-400 animate-pulse";
+            } else {
+                status.className = "w-2 h-2 rounded-full bg-slate-500";
+                icon.className = "fa-solid fa-radio text-pink-500";
+            }
+        }
+
+        // Sticker insertion
+        function insertSticker(emoji) {
+            const input = document.getElementById('chatInput');
+            input.value += ` ${emoji} `;
+            input.focus();
+        }
+
+        // Send Chat Messages
+        function handleSend(e) {
+            e.preventDefault();
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const chatFeed = document.getElementById('chatFeed');
+
+            const msgHtml = `
+                <div class="flex items-start gap-3 justify-end">
+                    <div class="max-w-[85%] sm:max-w-md">
+                        <div class="flex items-baseline justify-end gap-2 mb-1">
+                            <span class="text-[10px] text-slate-500">${time}</span>
+                            <span class="text-xs font-bold text-pink-400 flex items-center gap-1">${escapeHtml(currentUser)} ${userRoleBadge}</span>
+                        </div>
+                        <div class="bg-gradient-to-r from-pink-600 to-purple-600 text-white p-3 rounded-2xl rounded-tr-none shadow-md text-sm font-medium">
+                            ${escapeHtml(text)}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            chatFeed.innerHTML += msgHtml;
+            input.value = '';
+            chatFeed.scrollTop = chatFeed.scrollHeight;
+
+            // Auto-respond for simulation
+            setTimeout(simulateResponse, 2000);
+        }
+
+        function triggerPhotoUpload() {
+            appendSystemMessage("📸 Photo Attachment tool opened. Select image snap to send with spoiler blur.");
+        }
+
+        function simulateResponse() {
+            const botNames = ["Ananya_Sweet", "Karan_Delhi", "Simran_Hot", "Rohan_Single"];
+            const botAvatars = ["👩🏽", "👦🏽", "👩🏼", "👦🏻"];
+            const replies = [
+                "Hey! Nice to see you here 🔥",
+                "Anyone up for voice call?",
+                "Haha cool sticker! 💋",
+                "Are you from Delhi or Mumbai?"
+            ];
+
+            const idx = Math.floor(Math.random() * botNames.length);
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            const chatFeed = document.getElementById('chatFeed');
+            const msgHtml = `
+                <div class="flex items-start gap-3">
+                    <div class="w-9 h-9 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-lg shrink-0">
+                        ${botAvatars[idx]}
+                    </div>
+                    <div class="max-w-[85%] sm:max-w-md">
+                        <div class="flex items-baseline gap-2 mb-1">
+                            <span class="text-xs font-bold text-slate-300">${botNames[idx]}</span>
+                            <span class="text-[10px] text-slate-500">${time}</span>
+                        </div>
+                        <div class="bg-slate-900 text-slate-200 p-3 rounded-2xl rounded-tl-none border border-slate-800 text-sm">
+                            ${replies[Math.floor(Math.random() * replies.length)]}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            chatFeed.innerHTML += msgHtml;
+            chatFeed.scrollTop = chatFeed.scrollHeight;
+        }
+
+        function appendSystemMessage(msg) {
+            const chatFeed = document.getElementById('chatFeed');
+            chatFeed.innerHTML += `
+                <div class="flex justify-center my-2">
+                    <span class="bg-slate-800/80 text-slate-400 text-[11px] px-3 py-1 rounded-full border border-slate-700/50">
+                        ${msg}
+                    </span>
+                </div>
+            `;
+            chatFeed.scrollTop = chatFeed.scrollHeight;
+        }
+
+        // Admin Modal Logic
+        function toggleAdminModal() {
+            document.getElementById('adminModal').classList.toggle('hidden');
+        }
+
+        function applyAdminStatus() {
+            const selectedStatus = document.getElementById('adminStatusSelect').value;
+            if (selectedStatus.includes("VIP")) {
+                userRoleBadge = "👑";
+            } else if (selectedStatus.includes("Elite")) {
+                userRoleBadge = "💎";
+            } else {
+                userRoleBadge = "😈";
+            }
+            document.getElementById('userBadgeIcon').innerText = userRoleBadge;
+            toggleAdminModal();
+            appendSystemMessage(`Admin action applied: Status updated to ${selectedStatus}`);
+        }
+
+        function toggleTheme() {
+            const icon = document.getElementById('themeIcon');
+            icon.classList.toggle('fa-moon');
+            icon.classList.toggle('fa-sun');
+        }
+
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+    </script>
+</body>
+</html>
